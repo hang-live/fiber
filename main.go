@@ -97,7 +97,6 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		// c.BindJSON(&loginRequest)
 
 		client, err := authorizer.NewAuthorizerClient(os.Getenv("AUTHORIZER_CLIENT_ID"), os.Getenv("AUTHORIZER_URL"), os.Getenv("AUTHORIZER_REDIRECT_URL"), nil)
 		if err != nil {
@@ -118,6 +117,7 @@ func main() {
 	
 		c.JSON(http.StatusOK, gin.H{
 			"message": authorizer.StringValue(res.Message),
+			"token": authorizer.StringValue(res.Token),
 		})
 		return
 	})
