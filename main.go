@@ -8,6 +8,7 @@ import (
  
 	"github.com/authorizerdev/authorizer-go"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -92,10 +93,7 @@ func main() {
 
 	router.POST("/login", func(c *gin.Context) {
 		// Set CORS headers
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET")
-		c.Header("Access-Control-Allow-Headers", "Content-Type")
-		c.Header("Access-Control-Max-Age", "86400") // 24 hours
+		c.Header("Access-Control-Allow-Origin", "http://localhost:3000")
 
 		// Handle preflight OPTIONS request
 		if c.Request.Method == "OPTIONS" {
@@ -132,7 +130,13 @@ func main() {
 			"token": authorizer.StringValue(res.AccessToken),
 		})
 		return
-	})
+	}).Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions},
+		AllowHeaders:     []string{"Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
  
 	router.Run(getPort())
 }
