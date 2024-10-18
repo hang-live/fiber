@@ -11,6 +11,11 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type LoginRequest struct {
+	Email string
+	Password string
+}
+
 func AuthorizeMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		env := os.Getenv("ENV")
@@ -18,11 +23,7 @@ func AuthorizeMiddleware() gin.HandlerFunc {
 			c.Next()
 			return
 		}
-
-		/**
-		  for open routes you can add condition here and just return with c.Next()
-		  so that it does not validate token for those routes
-		*/
+		
 		authHeader := c.Request.Header.Get("Authorization")
 		tokenSplit := strings.Split(authHeader, " ")
  
@@ -75,18 +76,6 @@ func getPort() string {
 	return port
 }
 
-// func main() {
-// 	app := fiber.New()
-
-// 	app.Get("/", func(c *fiber.Ctx) error {
-// 		return c.JSON(fiber.Map{
-// 			"message": "Hello, Railway!",
-// 		})
-// 	})
-
-// 	app.Listen(getPort())
-// }
-
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -94,11 +83,44 @@ func main() {
 	}
 
 	router := gin.New()
-	router.Use(AuthorizeMiddleware())
  
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
+		})
+	}).Use(AuthorizeMiddleware())
+
+	router.POST("/login", func(c *gin.Context) {
+		log.Println("login requested")
+
+		var loginRequest LoginRequest
+		if err := c.ShouldBindJSON(&loginRequest); err != nil {
+			log.Println("error binding login request: ", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.BindJSON(&loginRequest)
+
+		client, err := authorizer.NewAuthorizerClient(os.Getenv("AUTHORIZER_CLIENT_ID"), os.Getenv("AUTHORIZER_URL"), os.Getenv("AUTHORIZER_REDIRECT_URL"), nil)
+		if err != nil {
+			log.Println("error creating authorizer client: ", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return;
+		}
+	
+		res, err := client.Login(&authorizer.LoginInput{
+			Email:    &loginRequest.Email,
+			Password: loginRequest.Password,
+		})
+		if err != nil {
+			log.Println("error logging in: ", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return;
+		}
+	
+		log.Println(authorizer.StringValue(res.Message))
+		c.JSON(http.StatusOK, gin.H{
+			"message": authorizer.StringValue(res.Message),
 		})
 	})
  
