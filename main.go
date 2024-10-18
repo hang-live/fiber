@@ -31,12 +31,14 @@ func AuthorizeMiddleware() gin.HandlerFunc {
 		if err != nil {
 			// unauthorized
 			c.AbortWithStatusJSON(401, "unauthorized")
+			log.Println("unauthorized authorizer client: ", err)
 			return
 		}
  
 		if len(tokenSplit) < 2 || tokenSplit[1] == "" {
 			// unauthorized
 			c.AbortWithStatusJSON(401, "unauthorized")
+			log.Println("unauthorized token split: ", tokenSplit[1], tokenSplit)
 			return
 		}
  
@@ -47,12 +49,14 @@ func AuthorizeMiddleware() gin.HandlerFunc {
 		if err != nil {
 			// unauthorized
 			c.AbortWithStatusJSON(401, "unauthorized")
+			log.Println("unauthorized JWT validation: ", err)
 			return
 		}
  
 		if !res.IsValid {
 			// unauthorized
 			c.AbortWithStatusJSON(401, "unauthorized")
+			log.Println("unauthorized, invalid response: ", res.IsValid)
 			return
 		}
  
