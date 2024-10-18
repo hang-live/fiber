@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"log"
- 
+	"slices"
 	"github.com/authorizerdev/authorizer-go"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
@@ -16,6 +16,8 @@ type LoginRequest struct {
 	Email string
 	Password string
 }
+
+var Origins = []string{"http://localhost:3000"}
 
 func AuthorizeMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -131,11 +133,14 @@ func main() {
 		})
 		return
 	}).Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     Origins,
 		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions},
 		AllowHeaders:     []string{"Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return slices.Contains(Origins, origin)
+		  },
 	}))
  
 	router.Run(getPort())
