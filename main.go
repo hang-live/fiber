@@ -140,6 +140,8 @@ func main() {
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
 			for _, o := range Origins {
+				log.Println("origin o: ", o)
+				log.Println("origin: ", origin)
 				if o == origin {
 					return true
 				}
