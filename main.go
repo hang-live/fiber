@@ -91,6 +91,17 @@ func main() {
 	}).Use(AuthorizeMiddleware())
 
 	router.POST("/login", func(c *gin.Context) {
+		// Set CORS headers
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Handle preflight OPTIONS request
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
 		var loginRequest LoginRequest
 		if err := c.ShouldBindJSON(&loginRequest); err != nil {
 			log.Println("error binding login request: ", err)
