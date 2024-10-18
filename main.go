@@ -91,8 +91,6 @@ func main() {
 	}).Use(AuthorizeMiddleware())
 
 	router.POST("/login", func(c *gin.Context) {
-		log.Println("login requested")
-
 		var loginRequest LoginRequest
 		if err := c.ShouldBindJSON(&loginRequest); err != nil {
 			log.Println("error binding login request: ", err)
@@ -105,7 +103,7 @@ func main() {
 		if err != nil {
 			log.Println("error creating authorizer client: ", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return;
+			return
 		}
 	
 		res, err := client.Login(&authorizer.LoginInput{
@@ -115,13 +113,14 @@ func main() {
 		if err != nil {
 			log.Println("error logging in: ", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return;
+			return
 		}
 	
 		log.Println(authorizer.StringValue(res.Message))
 		c.JSON(http.StatusOK, gin.H{
 			"message": authorizer.StringValue(res.Message),
 		})
+		return
 	})
  
 	router.Run(getPort())
