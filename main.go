@@ -97,24 +97,24 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		c.BindJSON(&loginRequest)
+		// c.BindJSON(&loginRequest)
 
 		client, err := authorizer.NewAuthorizerClient(os.Getenv("AUTHORIZER_CLIENT_ID"), os.Getenv("AUTHORIZER_URL"), os.Getenv("AUTHORIZER_REDIRECT_URL"), nil)
-		if err != nil {
-			log.Println("error creating authorizer client: ", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+		// if err != nil {
+		// 	log.Println("error creating authorizer client: ", err)
+		// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		// 	return
+		// }
 	
 		res, err := client.Login(&authorizer.LoginInput{
 			Email:    &loginRequest.Email,
 			Password: loginRequest.Password,
 		})
-		if err != nil {
-			log.Println("error logging in: ", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+		// if err != nil {
+		// 	log.Println("error logging in: ", err)
+		// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		// 	return
+		// }
 	
 		log.Println(authorizer.StringValue(res.Message))
 		c.JSON(http.StatusOK, gin.H{
