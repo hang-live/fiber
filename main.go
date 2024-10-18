@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"log"
-	"slices"
+ 
 	"github.com/authorizerdev/authorizer-go"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
@@ -139,7 +139,12 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			return slices.Contains(Origins, origin)
+			for _, o := range Origins {
+				if o == origin {
+					return true
+				}
+			}
+			return false
 		  },
 	}))
  
