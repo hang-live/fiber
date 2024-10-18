@@ -60,16 +60,16 @@ func AuthorizeMiddleware() gin.HandlerFunc {
 	}
 }
 
-// func getPort() string {
-// 	port := os.Getenv("PORT")
-// 	if port == "" {
-// 		port = ":3000"
-// 	} else {
-// 		port = ":" + port
-// 	}
+func getPort() string {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = ":3000"
+	} else {
+		port = ":" + port
+	}
 
-// 	return port
-// }
+	return port
+}
 
 // func main() {
 // 	app := fiber.New()
@@ -98,5 +98,5 @@ func main() {
 		})
 	})
  
-	router.Run(":8090")
+	router.Run(getPort())
 }
