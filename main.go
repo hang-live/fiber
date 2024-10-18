@@ -99,14 +99,14 @@ func main() {
 		}
 		// c.BindJSON(&loginRequest)
 
-		client, err := authorizer.NewAuthorizerClient(os.Getenv("AUTHORIZER_CLIENT_ID"), os.Getenv("AUTHORIZER_URL"), os.Getenv("AUTHORIZER_REDIRECT_URL"), nil)
+		client, _ := authorizer.NewAuthorizerClient(os.Getenv("AUTHORIZER_CLIENT_ID"), os.Getenv("AUTHORIZER_URL"), os.Getenv("AUTHORIZER_REDIRECT_URL"), nil)
 		// if err != nil {
 		// 	log.Println("error creating authorizer client: ", err)
 		// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		// 	return
 		// }
 	
-		res, err := client.Login(&authorizer.LoginInput{
+		res, _ := client.Login(&authorizer.LoginInput{
 			Email:    &loginRequest.Email,
 			Password: loginRequest.Password,
 		})
