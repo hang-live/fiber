@@ -117,7 +117,7 @@ func main() {
 	
 		c.JSON(http.StatusOK, gin.H{
 			"message": authorizer.StringValue(res.Message),
-			"token": authorizer.StringValue(res.Token),
+			"token": authorizer.StringValue(res.AccessToken),
 		})
 		return
 	})
