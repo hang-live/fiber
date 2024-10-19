@@ -95,7 +95,8 @@ func main() {
 
 	router.POST("/login", func(c *gin.Context) {
 		// Set CORS headers
-		c.Header("Access-Control-Allow-Origin", "http://localhost:3000")
+		// c.Header("Access-Control-Allow-Origin", "http://localhost:3000")
+		// c.Header("Access-Control-Allow-Origin", "https://hanglive.com")
 
 		// Handle preflight OPTIONS request
 		if c.Request.Method == "OPTIONS" {
@@ -133,7 +134,7 @@ func main() {
 		})
 		return
 	}).Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     []string{"http://localhost:3000", "https://hanglive.com"},
 		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions},
 		AllowHeaders:     []string{"Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
