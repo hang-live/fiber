@@ -98,7 +98,7 @@ func main() {
 
 	router.POST("/login", func(c *gin.Context) {
 		// Set CORS headers
-		if origin := r.Header.Get("Origin"); allowList[origin] {
+		if origin := c.Request.Header.Get("Origin"); allowList[origin] {
 			c.Header("Access-Control-Allow-Origin", origin)
 		}
 
@@ -143,14 +143,6 @@ func main() {
 		AllowHeaders:     []string{"Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-		AllowOriginFunc: func(origin string) bool {
-			for _, o := range Origins {
-				if o == origin {
-					return true
-				}
-			}
-			return false
-		  },
 	}))
  
 	router.Run(getPort())
