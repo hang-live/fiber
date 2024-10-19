@@ -17,7 +17,7 @@ type LoginRequest struct {
 	Password string
 }
 
-var allowList := map[string]bool{
+var allowList = map[string]bool{
     "http://localhost:3000": true,
     "https://hanglive.com":  true,
 }
