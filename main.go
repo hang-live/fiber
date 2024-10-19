@@ -17,7 +17,10 @@ type LoginRequest struct {
 	Password string
 }
 
-var Origins = []string{"http://localhost:3000"}
+var allowList := map[string]bool{
+    "http://localhost:3000": true,
+    "https://hanglive.com":  true,
+}
 
 func AuthorizeMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -95,8 +98,9 @@ func main() {
 
 	router.POST("/login", func(c *gin.Context) {
 		// Set CORS headers
-		// c.Header("Access-Control-Allow-Origin", "http://localhost:3000")
-		// c.Header("Access-Control-Allow-Origin", "https://hanglive.com")
+		if origin := r.Header.Get("Origin"); allowList[origin] {
+			c.Header("Access-Control-Allow-Origin", origin)
+		}
 
 		// Handle preflight OPTIONS request
 		if c.Request.Method == "OPTIONS" {
