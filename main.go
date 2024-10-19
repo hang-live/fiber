@@ -133,7 +133,7 @@ func main() {
 		})
 		return
 	}).Use(cors.New(cors.Config{
-		AllowOrigins:     []string{os.Getenv("FRONTEND_URL"), "http://localhost:3000"},
+		AllowOrigins:     []string{"http://localhost:3000"},
 		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions},
 		AllowHeaders:     []string{"Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
