@@ -17,6 +17,11 @@ type LoginRequest struct {
 	Password string
 }
 
+type SignupRequest struct {
+	Email string
+	Password string
+}
+
 var allowList = map[string]bool{
     "http://localhost:3000": true,
     "https://hanglive.com":  true,
@@ -108,7 +113,7 @@ func main() {
 			return
 		}
 
-		var loginRequest LoginRequest
+		var loginRequest authorizer.LoginInput
 		if err := c.ShouldBindJSON(&loginRequest); err != nil {
 			log.Println("error binding login request: ", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -137,6 +142,103 @@ func main() {
 			"token": authorizer.StringValue(res.AccessToken),
 		})
 		return
+	}).Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000", "https://hanglive.com"},
+		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions},
+		AllowHeaders:     []string{"Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
+
+	router.POST("/signup", func(c *gin.Context) {
+		// Set CORS headers
+		if origin := c.Request.Header.Get("Origin"); allowList[origin] {
+			c.Header("Access-Control-Allow-Origin", origin)
+		}
+
+		// Handle preflight OPTIONS request
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		var signUpRequest authorizer.SignUpInput
+		if err := c.ShouldBindJSON(&signUpRequest); err != nil {
+			log.Println("error binding sign up request: ", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		client, err := authorizer.NewAuthorizerClient(os.Getenv("AUTHORIZER_CLIENT_ID"), os.Getenv("AUTHORIZER_URL"), os.Getenv("AUTHORIZER_REDIRECT_URL"), nil)
+		if err != nil {
+			log.Println("error creating authorizer client: ", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+	
+		res, err := client.SignUp(&authorizer.SignUpInput{
+			Email:    &signUpRequest.Email,
+			Password: signUpRequest.Password,
+			ConfirmPassword: signUpRequest.ConfirmPassword,
+		})
+		if err != nil {
+			log.Println("error signing up: ", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": authorizer.StringValue(res.Message),
+		})
+		return
+	}).Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000", "https://hanglive.com"},
+		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions},
+		AllowHeaders:     []string{"Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
+
+	router.POST("/forgot-password", func(c *gin.Context) {
+		// Set CORS headers
+		if origin := c.Request.Header.Get("Origin"); allowList[origin] {
+			c.Header("Access-Control-Allow-Origin", origin)
+		}
+
+		// Handle preflight OPTIONS request
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		var forgotPasswordRequest struct {
+			Email string `json:"email" binding:"required,email"`
+		}
+		if err := c.ShouldBindJSON(&forgotPasswordRequest); err != nil {
+			log.Println("error binding forgot password request: ", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		client, err := authorizer.NewAuthorizerClient(os.Getenv("AUTHORIZER_CLIENT_ID"), os.Getenv("AUTHORIZER_URL"), os.Getenv("AUTHORIZER_REDIRECT_URL"), nil)
+		if err != nil {
+			log.Println("error creating authorizer client: ", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+			return
+		}
+	
+		res, err := client.ForgotPassword(&authorizer.ForgotPasswordInput{
+			Email: forgotPasswordRequest.Email,
+		})
+		if err != nil {
+			log.Println("error in forgot password: ", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": authorizer.StringValue(res.Message),
+		})
 	}).Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000", "https://hanglive.com"},
 		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions},
