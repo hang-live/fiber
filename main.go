@@ -128,7 +128,7 @@ func main() {
 		}
 	
 		res, err := client.Login(&authorizer.LoginInput{
-			Email:    &loginRequest.Email,
+			Email:    loginRequest.Email,
 			Password: loginRequest.Password,
 		})
 		if err != nil {
@@ -177,7 +177,7 @@ func main() {
 		}
 	
 		res, err := client.SignUp(&authorizer.SignUpInput{
-			Email:    &signUpRequest.Email,
+			Email:    signUpRequest.Email,
 			Password: signUpRequest.Password,
 			ConfirmPassword: signUpRequest.ConfirmPassword,
 		})
@@ -237,7 +237,7 @@ func main() {
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"message": authorizer.StringValue(res.Message),
+			"message": authorizer.StringValue(&res.Message),
 		})
 	}).Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000", "https://hanglive.com"},
