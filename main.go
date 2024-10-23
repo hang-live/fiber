@@ -246,6 +246,43 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+
+	router.GET("/user", func(c *gin.Context) {
+		// Get the Authorization header from the request
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
+			return
+		}
+
+		// Create a new Authorizer client
+		client, err := authorizer.NewAuthorizerClient(os.Getenv("AUTHORIZER_CLIENT_ID"), os.Getenv("AUTHORIZER_URL"), os.Getenv("AUTHORIZER_REDIRECT_URL"), nil)
+		if err != nil {
+			log.Println("error creating authorizer client: ", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+			return
+		}
+
+		// Get the user profile
+		profile, err := client.GetProfile(map[string]string{
+			"Authorization": authHeader,
+		})
+		if err != nil {
+			log.Println("error getting user profile: ", err)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			return
+		}
+
+		// Return the user profile
+		c.JSON(http.StatusOK, gin.H{"user": profile})
+		return
+	}).Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000", "https://hanglive.com"},
+		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions},
+		AllowHeaders:     []string{"Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
  
 	router.Run(getPort())
 }
