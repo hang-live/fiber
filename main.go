@@ -199,60 +199,6 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	router.POST("/pilot", func(c *gin.Context) {
-		// Set CORS headers
-		if origin := c.Request.Header.Get("Origin"); allowList[origin] {
-			c.Header("Access-Control-Allow-Origin", origin)
-		}
-
-		// Handle preflight OPTIONS request
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		var signUpRequest authorizer.SignUpInput
-		if err := c.ShouldBindJSON(&signUpRequest); err != nil {
-			log.Println("error binding sign up request: ", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-		client, err := authorizer.NewAuthorizerClient(os.Getenv("AUTHORIZER_CLIENT_ID"), os.Getenv("AUTHORIZER_URL"), os.Getenv("AUTHORIZER_REDIRECT_URL"), nil)
-		if err != nil {
-			log.Println("error creating authorizer client: ", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-	
-		res, err := client.SignUp(&authorizer.SignUpInput{
-			Email:    signUpRequest.Email,
-			Password: signUpRequest.Password,
-			ConfirmPassword: signUpRequest.ConfirmPassword,
-			GivenName: signUpRequest.GivenName,
-			FamilyName: signUpRequest.FamilyName,
-			PhoneNumber: signUpRequest.PhoneNumber,
-			Birthdate: signUpRequest.Birthdate,
-			Gender: signUpRequest.Gender,
-		})
-		if err != nil {
-			log.Println("error signing up: ", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{
-			"message": authorizer.StringValue(res.Message),
-		})
-		return
-	}).Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "https://hanglive.com"},
-		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions},
-		AllowHeaders:     []string{"Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-	}))
-
 	router.POST("/forgot-password", func(c *gin.Context) {
 		// Set CORS headers
 		if origin := c.Request.Header.Get("Origin"); allowList[origin] {
